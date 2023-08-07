@@ -12,7 +12,7 @@
 @if (Model["categories"].Length == 0)
 {
   <p>No categories have been added yet!</p>
-} 
+}
 <ul>
   @foreach (Category cat in Model["categories"])
   {
@@ -24,7 +24,7 @@
 @if (Model["items"].Length == 0)
 {
   <p>No items have been added yet!</p>
-} 
+}
 <ul>
   @foreach (Item item in Model["items"])
   {
@@ -34,6 +34,7 @@
 
 <hr>
 
-<p>@Html.ActionLink("Manage items", "Index", "Items")</p> 
+<p>@Html.ActionLink("Manage items", "Index", "Items")</p>
 <p>@Html.ActionLink("Manage categories", "Index", "Categories")</p>
 <p>@Html.ActionLink("Manage tags", "Index", "Tags")</p>
+<p>@Html.ActionLink("Account Home", "Index", "Account")</p>
