@@ -22,10 +22,20 @@ namespace ToDoList
                           )
                         )
                       );
-      
+
       builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ToDoListContext>()
                 .AddDefaultTokenProviders();
+
+      builder.Services.Configure<IdentityOptions>(options =>
+      {
+        options.Password.RequireDigit = false;
+        options.Password.RequireLowercase = false;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequiredLength = 0;
+        options.Password.RequiredUniqueChars = 0;
+      });
 
       WebApplication app = builder.Build();
 
@@ -35,7 +45,7 @@ namespace ToDoList
 
       app.UseRouting();
 
-      app.UseAuthentication(); 
+      app.UseAuthentication();
       app.UseAuthorization();
 
       app.MapControllerRoute(
