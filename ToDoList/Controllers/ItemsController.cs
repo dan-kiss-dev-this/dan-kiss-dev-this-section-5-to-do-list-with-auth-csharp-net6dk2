@@ -5,6 +5,9 @@ using ToDoList.Models;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using System,Threading.Tasks;
+using System.Security.Claims;
 
 namespace ToDoList.Controllers
 {
@@ -12,18 +15,24 @@ namespace ToDoList.Controllers
   public class ItemsController : Controller
   {
     private readonly ToDoListContext _db;
+    private readonly UserManager<ApplicationUser> _userManager
 
-    public ItemsController(ToDoListContext db)
+    public ItemsController(UserManager<ApplicationUser> userManager, ToDoListContext db)
     {
+      _userManager = userManager
       _db = db;
     }
 
-    public ActionResult Index()
+    public async Task<ActionResult> Index()
     {
-      List<Item> model = _db.Items
-                            .Include(item => item.Category)
-                            .ToList();
-      return View(model);
+      // This is why we need a using directive for System.Security.Claims. We specify ClaimTypes.NameIdentifier to locate the unique ID associated with the currently signed in user account. NameIdentifier is a property that refers to an Entity's unique ID.
+      string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+      ApplicationUser currentUser = await _userManager.FindByIdAsync(userId);
+      List<Item> userItems = _db.Items
+                          .Where(entry => entry.User.Id == currentUser.Id)
+                          .Include(item => item.Category)
+                          .ToList();
+      return View(userItems);
     }
 
     public ActionResult Create()
@@ -33,7 +42,7 @@ namespace ToDoList.Controllers
     }
 
     [HttpPost]
-    public ActionResult Create(Item item)
+    public async ActionResult Create(Item item, int CategoryId)
     {
       if (!ModelState.IsValid)
       {
@@ -42,6 +51,9 @@ namespace ToDoList.Controllers
       }
       else
       {
+        string userId = userId.FindFirst(ClaimsTypes.NameIdentifier)?.Value;
+        ApplicationUser currentUser = await _userManager.FindByIdAsync(userId);
+        item.User = currentUser;
         _db.Items.Add(item);
         _db.SaveChanges();
         return RedirectToAction("Index");
